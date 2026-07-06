@@ -110,12 +110,12 @@ export default function DesejosPage() {
         title="Desejos"
         subtitle="Sua lista de compras futuras — priorize, agende e transforme em gasto."
         action={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Select
               aria-label="Ordenar por"
               value={sort}
               onChange={(e) => setSort(e.target.value as SortKey)}
-              className="w-auto"
+              className="w-auto flex-1 sm:flex-none"
             >
               <option value="priority">Prioridade</option>
               <option value="price">Preço</option>

@@ -60,7 +60,7 @@ export function Dialog({
             exit={{ opacity: 0, y: 20, scale: 0.98 }}
             transition={{ type: "spring", stiffness: 300, damping: 28 }}
             className={cn(
-              "glass relative z-10 flex max-h-[90vh] w-full flex-col overflow-hidden rounded-t-3xl border-white/10 sm:max-w-lg sm:rounded-3xl",
+              "glass relative z-10 flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-3xl border-white/10 sm:max-h-[90dvh] sm:max-w-lg sm:rounded-3xl",
               className,
             )}
           >
@@ -79,9 +79,11 @@ export function Dialog({
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto px-6 py-4">{children}</div>
+            <div className="flex-1 overflow-y-auto overscroll-contain px-6 py-4">
+              {children}
+            </div>
             {footer && (
-              <div className="flex items-center justify-end gap-3 border-t border-[var(--color-border)] p-4">
+              <div className="flex flex-wrap items-center justify-end gap-3 border-t border-[var(--color-border)] p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
                 {footer}
               </div>
             )}

@@ -94,6 +94,10 @@
 
 html {
   scroll-behavior: smooth;
+  /* Never let a stray wide child scroll the whole page sideways on mobile.
+     `clip` (not `hidden`) avoids creating a scroll container, so `position:
+     sticky` and smooth scrolling keep working. */
+  overflow-x: clip;
 }
 
 body {
@@ -102,6 +106,19 @@ body {
   font-family: var(--font-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+/* Fluid type for large numeric readouts — scales smoothly between a small
+   phone and desktop so big currency values never overflow their container.
+   Replaces discrete text-4xl/sm:text-5xl style jumps on hero figures. */
+.text-fluid-hero {
+  font-size: clamp(1.75rem, 1.05rem + 3.5vw, 3rem);
+  line-height: 1.05;
+}
+.text-fluid-stat {
+  font-size: clamp(1rem, 0.86rem + 0.7vw, 1.125rem);
+  line-height: 1.2;
 }
 
 /* Ambient dark-mode backdrop glow */

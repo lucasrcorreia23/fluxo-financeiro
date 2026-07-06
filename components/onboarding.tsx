@@ -6,12 +6,16 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/field";
 import { useData } from "@/lib/data/provider";
+import { useUser } from "@/lib/users/provider";
 
 export function Onboarding() {
   const { ready, currentUser, db, completeOnboarding } = useData();
+  const { loggedInUser } = useUser();
   const [value, setValue] = useState("");
 
-  const open = ready && !db.profile.onboarded;
+  // Só pede a renda para a própria conta logada vendo os próprios dados —
+  // não incomoda quando você está espiando a visão da outra pessoa.
+  const open = ready && currentUser === loggedInUser && !db.profile.onboarded;
 
   const start = () => {
     const n = parseFloat(value.replace(",", "."));
@@ -72,8 +76,8 @@ export function Onboarding() {
                   />
                 </div>
                 <p className="mt-1.5 text-[11px] text-[var(--color-muted)]">
-                  Você pode alterar depois no painel. Seus dados ficam só neste
-                  navegador.
+                  Você pode alterar depois no painel. Seus dados ficam salvos na
+                  sua conta.
                 </p>
               </div>
 

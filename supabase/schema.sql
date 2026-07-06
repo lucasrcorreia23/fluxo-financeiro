@@ -1,91 +1,97 @@
--- Fluxo — schema (personal single-user finance app)
--- Run in Supabase SQL Editor. RLS left open for personal single-user use;
--- flip to auth (magic link) later and scope by auth.uid().
+-- Fluxo — schema (household finance, 2 members: Lucas & Vanessa)
+--
+-- Dados são escopados por `member` (a pessoa dona: 'Lucas' | 'Vanessa'), não por
+-- auth.uid(). As duas contas autenticadas compartilham leitura E escrita de tudo
+-- (casal), então a RLS libera acesso a qualquer usuário logado.
+--
+-- IDs são `text` gerados no cliente (crypto.randomUUID) e category_id guarda o id
+-- de categoria code-owned (ex: 'cat-moradia'), por isso não há FK para categories.
+--
+-- Rode este arquivo inteiro no Supabase → SQL Editor.
 
--- PERFIL / CONFIGURAÇÕES
-create table if not exists profile (
-  id uuid primary key default gen_random_uuid(),
-  monthly_income numeric(12,2) default 0,
-  currency text default 'BRL',
-  onboarded boolean default false,
-  created_at timestamptz default now()
-);
-
--- CATEGORIAS
-create table if not exists categories (
-  id uuid primary key default gen_random_uuid(),
-  name text not null,
-  gradient text not null,          -- ex: 'from-indigo-500 to-violet-600'
-  accent text not null,            -- ex: 'indigo'
-  icon text not null,              -- ex: 'home'
-  created_at timestamptz default now()
+-- PERFIL / RENDA — uma linha por pessoa
+create table if not exists profiles (
+  member text primary key check (member in ('Lucas', 'Vanessa')),
+  monthly_income numeric(12, 2) not null default 0,
+  currency text not null default 'BRL',
+  onboarded boolean not null default false,
+  updated_at timestamptz not null default now()
 );
 
 -- GASTOS (fixos e variáveis)
 create table if not exists expenses (
-  id uuid primary key default gen_random_uuid(),
+  id text primary key,
+  member text not null check (member in ('Lucas', 'Vanessa')),
   name text not null,
-  amount numeric(12,2),            -- null = ainda não preenchido (ex: Luz)
-  type text not null check (type in ('fixed','variable')),
-  category_id uuid references categories(id) on delete set null,
-  due_day int,                     -- dia do vencimento (1-31), opcional
-  is_paid boolean default false,
-  owner text,                      -- ex: 'Lucas' | 'Vanessa'
-  created_at timestamptz default now()
-);
-
--- HISTÓRICO MENSAL (snapshot p/ insights)
-create table if not exists monthly_history (
-  id uuid primary key default gen_random_uuid(),
-  month date not null,             -- primeiro dia do mês
-  category_id uuid references categories(id) on delete set null,
-  total numeric(12,2) not null default 0,
-  created_at timestamptz default now(),
-  unique (month, category_id)
+  amount numeric(12, 2),               -- null = ainda não preenchido (ex: Luz)
+  type text not null check (type in ('fixed', 'variable')),
+  category_id text,                    -- id code-owned, ex: 'cat-moradia'
+  due_day int,                         -- 1-31, opcional
+  is_paid boolean not null default false,
+  owner text,                          -- responsável no casal, opcional
+  created_at timestamptz not null default now()
 );
 
 -- METAS
 create table if not exists goals (
-  id uuid primary key default gen_random_uuid(),
+  id text primary key,
+  member text not null check (member in ('Lucas', 'Vanessa')),
   name text not null,
-  target_amount numeric(12,2) not null,
-  current_amount numeric(12,2) default 0,
+  target_amount numeric(12, 2) not null,
+  current_amount numeric(12, 2) not null default 0,
   deadline date,
   color text,
-  created_at timestamptz default now()
+  created_at timestamptz not null default now()
 );
 
--- LISTA DE DESEJOS + AGENDAMENTO DE COMPRA
+-- LISTA DE DESEJOS
 create table if not exists wishlist (
-  id uuid primary key default gen_random_uuid(),
+  id text primary key,
+  member text not null check (member in ('Lucas', 'Vanessa')),
   name text not null,
-  price numeric(12,2),
+  price numeric(12, 2),
   product_url text,
   image_url text,
-  priority int default 2,          -- 1 alta, 2 média, 3 baixa
-  alert_date date,                 -- "me alerte no dia X"
-  notified boolean default false,
-  status text default 'wanted' check (status in ('wanted','purchased')),
+  priority int not null default 2,     -- 1 alta, 2 média, 3 baixa
+  alert_date date,
+  notified boolean not null default false,
+  status text not null default 'wanted' check (status in ('wanted', 'purchased')),
   purchased_at timestamptz,
-  category_id uuid references categories(id) on delete set null,
-  created_at timestamptz default now()
+  category_id text,
+  created_at timestamptz not null default now()
 );
 
--- Uso pessoal: RLS aberto (habilite auth depois).
-alter table profile enable row level security;
-alter table categories enable row level security;
+-- HISTÓRICO MENSAL (snapshot p/ insights de tendência)
+create table if not exists monthly_history (
+  id text primary key,
+  member text not null check (member in ('Lucas', 'Vanessa')),
+  month date not null,                 -- primeiro dia do mês
+  category_id text,
+  total numeric(12, 2) not null default 0
+);
+
+create index if not exists idx_expenses_member on expenses (member);
+create index if not exists idx_goals_member on goals (member);
+create index if not exists idx_wishlist_member on wishlist (member);
+create index if not exists idx_history_member on monthly_history (member);
+
+-- RLS — casa compartilhada: qualquer usuário autenticado lê e escreve tudo.
+alter table profiles enable row level security;
 alter table expenses enable row level security;
-alter table monthly_history enable row level security;
 alter table goals enable row level security;
 alter table wishlist enable row level security;
+alter table monthly_history enable row level security;
 
 do $$
-declare t text;
+declare
+  t text;
 begin
-  foreach t in array array['profile','categories','expenses','monthly_history','goals','wishlist']
+  foreach t in array array['profiles', 'expenses', 'goals', 'wishlist', 'monthly_history']
   loop
+    execute format('drop policy if exists "shared access" on %I;', t);
     execute format(
-      'create policy "public access" on %I for all using (true) with check (true);', t
+      'create policy "shared access" on %I for all to authenticated using (true) with check (true);',
+      t
     );
   end loop;
 end $$;

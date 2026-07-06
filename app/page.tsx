@@ -48,13 +48,13 @@ function StatCard({
     <Card className="p-4">
       <div className="flex items-center gap-3">
         <span
-          className={`grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br text-white ${gradient}`}
+          className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br text-white ${gradient}`}
         >
           {icon}
         </span>
-        <div>
-          <p className="text-xs text-[var(--color-muted)]">{label}</p>
-          <p className="text-lg font-semibold tnum">{value}</p>
+        <div className="min-w-0">
+          <p className="truncate text-xs text-[var(--color-muted)]">{label}</p>
+          <p className="truncate text-fluid-stat font-semibold tnum">{value}</p>
         </div>
       </div>
     </Card>

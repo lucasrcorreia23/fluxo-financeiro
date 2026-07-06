@@ -89,7 +89,7 @@ function ExpenseRow({
         onClick={onToggle}
         aria-label={expense.is_paid ? "Marcar como não pago" : "Marcar como pago"}
         className={cn(
-          "grid h-6 w-6 shrink-0 place-items-center rounded-full border transition-colors",
+          "relative grid h-6 w-6 shrink-0 place-items-center rounded-full border transition-colors after:absolute after:-inset-2.5 after:content-['']",
           expense.is_paid
             ? "border-emerald-500 bg-emerald-500 text-white"
             : "border-[var(--color-border)] text-transparent hover:border-emerald-400/60",
@@ -179,7 +179,7 @@ export default function GastosPage() {
         }
       />
 
-      <div className="mb-5 flex items-center justify-between gap-3">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
         <div className="inline-flex rounded-2xl border border-[var(--color-border)] bg-white/5 p-1">
           {TABS.map((t) => {
             const active = tab === t.value;

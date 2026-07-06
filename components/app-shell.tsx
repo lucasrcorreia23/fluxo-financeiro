@@ -13,6 +13,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./theme-toggle";
 import { UserSwitcher } from "./user-switcher";
+import { AccountButton } from "./auth/account-button";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
@@ -81,9 +82,12 @@ function Sidebar({ pathname }: { pathname: string }) {
           );
         })}
       </nav>
-      <div className="mt-auto px-2">
-        <span className="mb-2 block text-xs text-[var(--color-muted)]">Usuário</span>
-        <UserSwitcher />
+      <div className="mt-auto flex flex-col gap-3 px-2">
+        <div>
+          <span className="mb-2 block text-xs text-[var(--color-muted)]">Usuário</span>
+          <UserSwitcher />
+        </div>
+        <AccountButton />
       </div>
     </aside>
   );
@@ -135,9 +139,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* mobile top bar */}
       <header className="sticky top-0 z-20 border-b border-[var(--color-border)] bg-[var(--color-background)]/70 px-4 py-3 backdrop-blur-xl lg:hidden">
         <TopBar />
-        <div className="mt-3">
-          <span className="mb-2 block text-xs text-[var(--color-muted)]">Usuário</span>
-          <UserSwitcher />
+        <div className="mt-3 flex flex-col gap-3">
+          <div>
+            <span className="mb-2 block text-xs text-[var(--color-muted)]">Usuário</span>
+            <UserSwitcher />
+          </div>
+          <AccountButton />
         </div>
       </header>
       <main className="lg:pl-64">

@@ -43,17 +43,17 @@ export function BalanceHero({
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="mt-2 flex items-end gap-3"
+          className="mt-2 flex flex-wrap items-end gap-x-3 gap-y-1"
         >
           <span
-            className={`text-4xl font-semibold tracking-tight tnum sm:text-5xl ${
+            className={`text-fluid-hero font-semibold tracking-tight tnum ${
               positive ? "text-emerald-400" : "text-rose-400"
             }`}
           >
             {formatBRL(surplus)}
           </span>
           <span
-            className={`mb-1.5 inline-flex items-center gap-0.5 text-xs font-medium ${
+            className={`mb-1.5 inline-flex shrink-0 items-center gap-0.5 whitespace-nowrap text-xs font-medium ${
               positive ? "text-emerald-400/80" : "text-rose-400/80"
             }`}
           >
@@ -69,16 +69,18 @@ export function BalanceHero({
         <div className="mt-6 grid grid-cols-2 gap-3">
           <button
             onClick={onSetIncome}
-            className="rounded-2xl bg-white/5 p-3 text-left transition-colors hover:bg-white/10"
+            className="min-w-0 rounded-2xl bg-white/5 p-3 text-left transition-colors hover:bg-white/10"
           >
-            <p className="text-xs text-[var(--color-muted)]">Renda mensal</p>
-            <p className="mt-0.5 text-lg font-semibold tnum">
+            <p className="truncate text-xs text-[var(--color-muted)]">Renda mensal</p>
+            <p className="mt-0.5 truncate text-fluid-stat font-semibold tnum">
               {income > 0 ? formatBRL(income) : "definir"}
             </p>
           </button>
-          <div className="rounded-2xl bg-white/5 p-3">
-            <p className="text-xs text-[var(--color-muted)]">Gastos previstos</p>
-            <p className="mt-0.5 text-lg font-semibold tnum">{formatBRL(total)}</p>
+          <div className="min-w-0 rounded-2xl bg-white/5 p-3">
+            <p className="truncate text-xs text-[var(--color-muted)]">Gastos previstos</p>
+            <p className="mt-0.5 truncate text-fluid-stat font-semibold tnum">
+              {formatBRL(total)}
+            </p>
           </div>
         </div>
 
